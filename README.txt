@@ -1,3 +1,9 @@
+# Poke Charge ⚡  
+
+🚀 Анимация зарядки MacBook с эффектами!  
+
+![Poke Charge Demo](qwe.gif)
+
 # Инструкция по включению и отключению скрипта
 
 poke_charge/
@@ -9,12 +15,15 @@ poke_charge/
 └── README.txt                    # 。゜゜(´o`) ゜゜。
 
 
+
+## 📥 Установка  
+1. Скачайте `play_gif_and_sound.sh`  
+2. Дайте права на выполнение:  
+   ```bash
+   chmod +x play_gif_and_sound.sh
+
 Включение
 └── launchctl load /Users/user/Dev/Script/poke_charge/com.user.chargeSoundAndGif.plist 
 
-
 Выключение  
 └── launchctl unload /Users/user/Dev/Script/poke_charge/com.user.chargeSoundAndGif.plist
-
-
-
