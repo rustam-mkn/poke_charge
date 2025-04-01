@@ -35,7 +35,7 @@ cp com.user.chargeSoundAndGif.plist ~/Library/LaunchAgents/
 launchctl load /Users/user/Dev/Script/poke_charge/com.user.chargeSoundAndGif.plist
 ``` 
 
-## ❌ Отключить скрипт:
+## ❌ Отключить скрипт
 ```bash
 launchctl unload /Users/user/Dev/Script/poke_charge/com.user.chargeSoundAndGif.plist
 ``` 
