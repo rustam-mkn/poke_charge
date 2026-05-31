@@ -1,36 +1,58 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-# Файл для хранения статуса зарядки
-STATUS_FILE="/Users/user/Dev/Script/poke_charge/charge_status.txt"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
 
-# Проверка, подключено ли устройство к зарядке
-IS_CHARGING=$(pmset -g ps | grep -c "AC Power")
+GIF_PATH="${POKE_CHARGE_GIF:-$SCRIPT_DIR/qwe.gif}"
+SOUND_PATH="${POKE_CHARGE_SOUND:-$SCRIPT_DIR/the-microsoft-sound.mp3}"
+PREVIEW_SECONDS="${POKE_CHARGE_PREVIEW_SECONDS:-5}"
 
-# Читаем предыдущий статус из файла (если файл существует)
-if [[ -f "$STATUS_FILE" ]]; then
-    PREV_STATUS=$(cat "$STATUS_FILE")
-else
-    PREV_STATUS=0
-fi
+preview_pid=""
+sound_pid=""
+timer_pid=""
 
-# Если сейчас подключено к зарядке, но ранее не было — запускаем воспроизведение
-if [[ $IS_CHARGING -eq 1 && $PREV_STATUS -eq 0 ]]; then
-    # Путь к GIF и звуку
-    GIF_PATH="/Users/user/Dev/Script/poke_charge/qwe.gif"
-    SOUND_PATH="/Users/user/Dev/Script/poke_charge/the-microsoft-sound.mp3"
+fail() {
+    printf 'poke-charge action: %s\n' "$*" >&2
+    exit 1
+}
 
-    # Открываем GIF с помощью QuickLook
-    qlmanage -p "$GIF_PATH" &
+cleanup() {
+    if [[ -n "$timer_pid" ]] && kill -0 "$timer_pid" 2>/dev/null; then
+        kill "$timer_pid" 2>/dev/null || true
+        wait "$timer_pid" 2>/dev/null || true
+    fi
 
-    # Воспроизводим звук
-    afplay "$SOUND_PATH"
+    if [[ -n "$sound_pid" ]] && kill -0 "$sound_pid" 2>/dev/null; then
+        kill "$sound_pid" 2>/dev/null || true
+        wait "$sound_pid" 2>/dev/null || true
+    fi
 
-    # Ждем завершения GIF (укажите длительность вручную)
-    sleep 5  # Замените 5 на длительность GIF
+    if [[ -n "$preview_pid" ]] && kill -0 "$preview_pid" 2>/dev/null; then
+        kill "$preview_pid" 2>/dev/null || true
+        wait "$preview_pid" 2>/dev/null || true
+    fi
+}
 
-    # Закрываем QuickLook
-    pkill qlmanage
-fi
+trap cleanup EXIT
+trap 'trap - EXIT; cleanup; exit 130' INT
+trap 'trap - EXIT; cleanup; exit 143' TERM
 
-# Обновляем текущий статус зарядки в файл
-echo "$IS_CHARGING" > "$STATUS_FILE"
+[[ -f "$GIF_PATH" ]] || fail "GIF not found: $GIF_PATH"
+[[ -f "$SOUND_PATH" ]] || fail "sound not found: $SOUND_PATH"
+command -v qlmanage >/dev/null 2>&1 || fail "qlmanage is not available"
+command -v afplay >/dev/null 2>&1 || fail "afplay is not available"
+
+qlmanage -p "$GIF_PATH" >/dev/null 2>&1 &
+preview_pid="$!"
+
+afplay "$SOUND_PATH" &
+sound_pid="$!"
+
+sleep "$PREVIEW_SECONDS" &
+timer_pid="$!"
+
+wait "$sound_pid"
+sound_pid=""
+
+wait "$timer_pid"
+timer_pid=""

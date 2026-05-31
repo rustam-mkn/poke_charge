@@ -6,15 +6,17 @@
     <string>com.user.chargeSoundAndGif</string>
     <key>ProgramArguments</key>
     <array>
-        <string>/bin/bash</string>
+        <string>/Users/user/Dev/Script/poke_charge/build/poke-charge-monitor</string>
+        <string>--action</string>
         <string>/Users/user/Dev/Script/poke_charge/play_gif_and_sound.sh</string>
     </array>
     <key>RunAtLoad</key>
     <true/>
     <key>KeepAlive</key>
-    <false/>
-    <key>StartInterval</key>
-    <integer>10</integer>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>/Users/user/Library/Logs/poke_charge.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/user/Library/Logs/poke_charge.log</string>
 </dict>
 </plist>
-

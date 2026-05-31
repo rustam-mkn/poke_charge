@@ -1,0 +1,4 @@
+.DS_Store
+/build/
+/charge_status.txt
+*.log
